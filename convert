@@ -17,5 +17,5 @@ mogrify \
 	-resize "${out_size}x${out_size}" \
 	-format "$out_file_format" \
 	-path "$build_dir" \
-	-print "Converted %t to $out_file_format\n" \
+	-print "Converted %t to %i\n" \
 	"$in_dir"/*.svg
