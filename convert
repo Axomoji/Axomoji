@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/env sh
 
 in_dir="svg"
 build_dir="build"
@@ -6,29 +6,16 @@ out_file_format="png"
 in_size="128"
 out_size="128"
 
-images="$(find "$in_dir" -mindepth 1 -maxdepth 1 -type f -name "*.svg")"
-amount="$(echo "$images" | wc -l)"
-
 # create $build_dir if it doesn't exist yet
 [ ! -d "$build_dir" ] && mkdir "$build_dir"
 
-index=0
-
 [ -n "$1" ] && out_size="$1" && echo "Switching to the output size: $out_size" >&2
 
-# shellcheck disable=SC2086
-for img in $images; do
-	index=$(( index+1 ))
-
-	# example: $img: $in_dir/axomm.svg -> $newname: $build_dir/axomm.$out_file_format
-	newname="$(echo "$img" | sed -E "s/$in_dir\/axo([a-z]+).svg/$build_dir\/axo\1.$out_file_format/")"
-	printf "\r[%s/%s] Converting %s to %s" "$index" "$amount" "$img" "$newname" >&2
-
-	# clear rest of line
-	printf "\33[0K"
-
-	# create $out_file_format file
-	convert -background none -density $(( out_size * 1500 / in_size )) -resize "${out_size}x${out_size}" "$img" "$newname"
-done
-
-printf "\n"
+mogrify \
+	-background none \
+	-density $(( out_size * 1500 / in_size )) \
+	-resize "${out_size}x${out_size}" \
+	-format "$out_file_format" \
+	-path "$build_dir" \
+	-print "Converted %t to $out_file_format\n" \
+	"$in_dir"/*.svg
